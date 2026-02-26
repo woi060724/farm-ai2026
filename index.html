@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8" />
+  <title>Учёт и анализ поголовья</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+  <h1>Учёт и анализ поголовья</h1>
+
+  <section id="input">
+    <h2>Добавить запись о животном</h2>
+    <form id="animalForm">
+      <input id="type" placeholder="Порода/тип" required />
+      <input id="age" type="number" placeholder="Возраст (мес)" required />
+      <input id="count" type="number" placeholder="Количество" required />
+      <button type="submit">Добавить</button>
+    </form>
+  </section>
+
+  <section id="table">
+    <h2>Таблица учёта</h2>
+    <table id="dataTable" border="1"><thead><tr><th>Порода</th><th>Возраст</th><th>Кол-во</th></tr></thead><tbody></tbody></table>
+  </section>
+
+  <section id="chart">
+    <h2>График по породам</h2>
+    <canvas id="chartCanvas" width="600" height="300"></canvas>
+  </section>
+
+  <script>
+    const data = [];
+    const form = document.getElementById('animalForm');
+    const tbody = document.querySelector('#dataTable tbody');
+    const ctx = document.getElementById('chartCanvas').getContext('2d');
+    let chart = new Chart(ctx, {type:'bar', data:{labels:[], datasets:[{label:'Кол-во', data:[]}]}});
+
+    form.addEventListener('submit', e => {
+      e.preventDefault();
+      const type = document.getElementById('type').value;
+      const age = +document.getElementById('age').value;
+      const count = +document.getElementById('count').value;
+      data.push({type, age, count});
+      renderTable();
+      renderChart();
+      form.reset();
+    });
+
+    function renderTable(){
+      tbody.innerHTML = '';
+      data.forEach(r => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `<td>${r.type}</td><td>${r.age}</td><td>${r.count}</td>`;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function renderChart(){
+      const agg = {};
+      data.forEach(r => agg[r.type] = (agg[r.type]||0) + r.count);
+      chart.data.labels = Object.keys(agg);
+      chart.data.datasets[0].data = Object.values(agg);
+      chart.update();
+    }
+  </script>
+
+  <!-- Вставь сюда код виджета чата (пример: Tawk.to) -->
+</body>
+</html>
